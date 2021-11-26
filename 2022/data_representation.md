@@ -47,13 +47,14 @@ of `1` (instead of `2` as it was before).
 The take home message is that if the range of columns are known, it is possible
 to quickly compute the sensitivity of certain queries when using DP techniques.
 
-## Goal of the thesis
+# Goal of the thesis
 
 The purpose of this thesis is to explore typed representation for tables, where
 the type information for each column not only says the kind of stored data
-(e.g., bool, int), but also the range of its values. For instance, one could be
-represent the table shown above as a data type definition, where a table is
-simply a list of rows.
+(e.g., bool, int), but also the range of its values. We will use the programming
+language Haskell in this work. To give an example, one could be represent the
+table shown above as a data type definition, where a table is simply a list of
+rows.
 
 ```haskell
 
@@ -68,7 +69,7 @@ type Table = [Row]
 What we would like is to represent also the possible options for each value at
 the type level. For instance,
 
-
+```haskell
 data Row = MkRow {
       name    :: String
     , alergic :: EnumVals [0,1] Int
@@ -80,6 +81,13 @@ type Table = [Row]
 Where the type `EnumVals` uses a type-level list to describe the possible values
 of type `Int` for the field `alergic`.
 
+While this example looks simple, there are two challenges aspects about this
+work.
+
+## Type-level decimal numbers
+
+While enumerating the possible value of booleans, and integers is somehow
+feasible, representing decimal numbers is challenging.
 
 
 
