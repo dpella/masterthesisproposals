@@ -38,6 +38,12 @@ For instance, consider the table
 | Marco     | 0 |
 | Elisabet  | 1 |
 
+If the query consists on *counting the number of alergic people*, then the
+sensitivity of it is *1*.
+%
+That is achieve by
+- Understanding that the range of the column Alergic, computed by its extremes
+  values, is $|1 - 0| = 1$.
 
 
 
