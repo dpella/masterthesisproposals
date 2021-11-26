@@ -43,7 +43,7 @@ sensitivity of it is *1*.
 %
 That is achieve by
 - Understanding that the range of the column Alergic, computed by its extremes
-  values, is $|1 - 0| = 1$.
+  values, is $`|1 - 0| = 1`$.
 
 
 
