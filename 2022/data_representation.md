@@ -1,5 +1,12 @@
 # Typed representation of datasets for Differential Privacy systems
 
+This thesis will be carried out at DPella's AB, Kungsgatan 11 - 6th floor, 41119
+Gothenburg.
+
+- DPella AB supervisor: Marco Gaboardi
+- Chalmers supervisor: Prof. Alejandro Russo
+- Possible examiner: Prof. David Sands
+
 ## Differential Privacy
 
 [Differential privacy](https://link.springer.com/chapter/10.1007/11681878_14)
@@ -49,12 +56,12 @@ to quickly compute the sensitivity of certain queries when using DP techniques.
 
 # Goal of the thesis
 
-The purpose of this thesis is to explore typed representation for tables, where
-the type information for each column not only says the kind of stored data
-(e.g., bool, int), but also the range of its values. We will use the programming
-language Haskell in this work. To give an example, one could be represent the
-table shown above as a data type definition, where a table is simply a list of
-rows.
+The overall goal of this thesis is to explore typed representation for tables,
+where *the type information for each column not only says the kind of stored
+data (e.g., bool, int), but also the range of its values*. We will use the
+programming language Haskell in this work. To give an example, one could be
+represent the table shown above as a data type definition, where a table is
+simply a list of rows.
 
 ```haskell
 
@@ -81,20 +88,28 @@ type Table = [Row]
 Where the type `EnumVals` uses a type-level list to describe the possible values
 of type `Int` for the field `alergic`.
 
-While this example looks simple, there are two challenges aspects about this
-work.
+While this example looks simple, there are two main challenges aspects about
+this work.
 
 ## Type-level decimal numbers
 
 While enumerating the possible value of booleans, and integers is somehow
-feasible, representing decimal numbers is challenging.
+feasible, representing decimal numbers is challenging. For instance, an interval
+of blood sugar measurements ranges typically [from 4 to 7 mmol/L with one
+decimal
+precision](https://www.diabetes.co.uk/diabetes_care/blood-sugar-level-ranges.html),
+which gives a total 40 possible values. If we want to consider measurements of
+blood sugar with two decimal precision, then we will have 400 possible values!
+Doing an enumeration at the type-level is possible but it will significantly
+load the type-system process.
 
+Instead, this work consists on exploring compact type-level representation for
+decimal intervals with a fixed precision at the type-level. Having conceived a
+type-level representation for decimals, the thesis will provide mechanisms to
+generate, at term level, all the possible values of a given range.
 
+## Integration into DPella's data model
 
-
-## General representation of tables as n-ary product
-
-
-
-
-## Capturing columns ranges
+Once type-level interval are conceived, the thesis will incorporate the
+type-level ranges on DPella's backend by using advanced generic programming
+techniques like [n-ary products](https://dl.acm.org/doi/10.1145/2633628.2633634).
