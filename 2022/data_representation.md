@@ -1,6 +1,6 @@
 # Typed representation of datasets for Differential Privacy systems
 
-This thesis will be carried out at DPella's AB, Kungsgatan 11 - 6th floor, 41119
+This thesis will be carried out at [DPella AB](www.dpella.io), Kungsgatan 11 - 6th floor, 41119
 Gothenburg.
 
 - DPella AB supervisor: Marco Gaboardi
