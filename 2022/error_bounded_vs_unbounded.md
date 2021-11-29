@@ -113,8 +113,18 @@ considered public.*
 
 # Goal of this thesis
 
-The goal of this thesis is to present analytical formulas for queries, like
-average, performed under an unbound notion of DP. Such formulas will be
-conceived from a novel combination of DP-formulas and error analysis. If you are
-unfamiliar with error analysis, please refer to [An Introduction to error
+The goal of this thesis is two fold:
+
+* It will present analytical formulas for queries like average performed under
+an unbound notion of DP. Such formulas will be conceived from a novel
+combination of DP-formulas and error analysis. If you are unfamiliar with error
+analysis, please refer to [An Introduction to error
 analysis](https://www.niser.ac.in/sps/sites/default/files/basic_page/John%20R.%20Taylor%20-%20An%20Introduction%20to%20Error%20Analysis_%20The%20Study%20of%20Uncertainties%20in%20Physical%20Measurements-University%20Science%20Books%20(1997).pdf).
+
+* The thesis will also present empirical evidence that such formulas work by
+  performing testing. The idea being that this evidence can be used later by
+  mathematician to prove the formulas analytically.
+
+To perform experiments, it requires to generate random datasets using the tool
+QuickCheck and use statistical methods to obtain enough confidence that the
+formulas are sound.
