@@ -72,88 +72,128 @@ countAllergic = sum . map alergic
 ## Reasoning about sensitivity of functions
 
 To reason about sensitivity, we need to reason about what is the magnitude of
-change that a query suffers when a record gets removed from the dataset.
+change that a query suffers when a record gets removed from the table.
 
 The function `countAllergic` returns a count of `2` in the table above. However,
-if we remove an individual and we consider the following table:
+if we remove an individual and we consider the following table instead:
 
 | name | allergic |
 | ---- | ------- |
 | Alejandro | 1 |
 | Marco     | 0 |
 
-so `countAllergic` returns `1` in this case. It seems that the variability is
-just about `1` -- you can verify that the same phenomenon occurs if you remove
-any other row in the table we described first.
+`countAllergic` returns `1`. It seems that the variability is just about `1` --
+you can verify that the same phenomenon occurs if you remove any other row in
+the table we described first.
 
 We can say that `countAllergic` has sensitivity **1**, but why? Observe that the
-type of `countAllergic` indicates the co-domian of it, i.e., integers!
+type of `countAllergic` indicates the co-domain are all the integers:
 
 ```haskell
 countAlergic :: Table -> Int
 ```
 
-but the range of the function is the set `{0,1}`, which admits a variability of
-1! That is the difference between the possible returned values, and we know that
-if we remove one row from the table, then the result will change, at most, by
-1.
+but the range of the function is the set `{0,1}`! -- a range admits a
+variability of 1. So, we know that if we remove one row from the table, then the
+result will change, at most, by 1.
 
 # Goal of the thesis
 
-The overall goal of this thesis is to explore typed representation for tables,
-where *the type information for each column not only says the kind of stored
-data (e.g., bool, int), but also the range of its values*. We will use the
-programming language Haskell in this work. To give an example, one could be
-represent the table shown above as a data type definition, where a table is
-simply a list of rows.
+The overall goal of to create a domain specific language where users can write
+functions (queries) and an interpreter can not only run them but also
+approximate their range. We will use the result of this thesis to encode scoring
+functions of the [exponential mechanism (see page
+37)](https://www.cis.upenn.edu/~aaroth/Papers/privacybook.pdf).
+
+More concretely, the thesis should enable developers of differential privacy
+system to write query of the type:
 
 ```haskell
-
-data Row = MkRow {
-      name    :: String
-    , alergic :: Int
-    }
-
-type Table = [Row]
+query :: Num a => Table -> DSL a
 ```
 
-What we would like is to represent also the possible options for each value at
-the type level. For instance,
+where the type `DSL` denotes the domain specific language conceived in this
+thesis, and the type constraint `Num a` indicates that the type `a` support a
+notion of interval to capture the range of the query. Once queries are written
+in such DSL, the thesis should also provide two run functions:
 
 ```haskell
-data Row = MkRow {
-      name    :: String
-    , alergic :: EnumVals [0,1] Int
-    }
-
-type Table = [Row]
+run   :: Num a => (Table -> DSL a) -> Table -> a
+range :: Num a => (Table -> DSL a) -> Range a a
 ```
 
-Where the type `EnumVals` uses a type-level list to describe the possible values
-of type `Int` for the field `alergic`.
+Function `run` executes the program and produces a result, e.g., `run
+countAllergic table` returns the number of allergic people in `table`.
+Instead, `range countAllergic` returns the range of the function, i.e., the
+interval `[0 .. 1]`.
 
-While this example looks simple, there are two main challenges aspects about
-this work.
+There are several challenges aspects about writing the function `range`.
 
-## Type-level decimal numbers
+## Data independent range analysis
 
-While enumerating the possible value of booleans, and integers is somehow
-feasible, representing decimal numbers is challenging. For instance, an interval
-of blood sugar measurements ranges typically [from 4 to 7 mmol/L with one
-decimal
-precision](https://www.diabetes.co.uk/diabetes_care/blood-sugar-level-ranges.html),
-which gives a total 40 possible values. If we want to consider measurements of
-blood sugar with two decimal precision, then we will have 400 possible values!
-Doing an enumeration at the type-level is possible but it will significantly
-load the type-system process.
+To analyze the possible values return by a query `q :: Table -> DSL a`, the
+function `range` needs to do it in a data independent manner. *The analysis
+should not depend on the content of the table but its schema of it like the
+possible values the column might assume.* This requirement will demand to
+introduce symbolic values (denoting any possible table) when defining `range`
+and/or processing intermediate tables.
 
-Instead, this work consists on exploring compact type-level representation for
-decimal intervals with a fixed precision at the type-level. Having conceived a
-type-level representation for decimals, the thesis will provide mechanisms to
-generate, at term level, all the possible values of a given range.
+## Interval analysis
 
-## Integration into DPella's data model
+The function `range` needs to interpret the query within a interval semantics.
+For instance, if the body of the query adds two variables
 
-Once type-level interval are conceived, the thesis will incorporate the
-type-level ranges on DPella's backend by using advanced generic programming
-techniques like [n-ary products](https://dl.acm.org/doi/10.1145/2633628.2633634).
+```haskell
+query table =
+   ...
+   z <- x + y
+   ...
+```
+
+where `x` is in the range `[0,10]` and `y` is in the range `[1,5]`, then `z`
+should be given the semantics of being in the range `[0,15]`. Fortunately, there
+are a couple of libraries in Haskell which support interval semantics:
+
+- [range: An efficient and versatile range library](https://hackage.haskell.org/package/range)
+- [data-interval: Interval datatype, interval arithmetic, and interval-based containers](https://hackage.haskell.org/package/data-interval)
+
+Part of the thesis contribution would be to pick one of them and justify why is
+the adequate one for this problem.
+
+## Branches
+
+Another challenge aspect of this work is how to deal with branches done by
+queries. For instance, imagine a query that does the following:
+
+```haskell
+query table =
+   ...
+   x <- some_computation
+   if x > 0 then x
+            else y
+```
+
+Assuming that `y` is in the range `[3,7]`, we have that
+* If `x` is in the range `[-5,-1]`, then the range of the query gets reduce to
+`[3,7]`, i.e., we only need to consider the `else`-branch;
+* If `x` is in the range `[1,5]`, then the range of the query gets reduce to
+  `[1,5]`, i.e., we only consider the `then`-branch;
+* If `x` is in the range `[-5,5]`, then the range of the query is `[-5,7]`,
+  i.e., we consider both branches!
+
+So, the `range` function needs to detect and consider the possible range on the
+condition of branches and then calculate the range of the conditional based on
+the considered branches.
+
+There are many ways to capture branches on embedded DSLs, one of the most
+naturally is to use Haskell functions itself, but that demands to use (partial
+evaluation) tricks to *penetrate* such functions and analyze their body.
+Fortunately, there are some papers about it:
+- [Towards secure IoT programming in
+  Haskell](https://dl.acm.org/doi/10.1145/3406088.3409027)
+- [Pattern Matching for Non-inductive Types in Code-genering Haskell EDSLs](https://gupea.ub.gu.se/bitstream/2077/69659/1/gupea_2077_69659_1.pdf)
+
+## Integration into DPella's backend
+
+Part of the thesis will consists on integrating the result of this work for the
+exponential mechanism implementation at DPella.
