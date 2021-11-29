@@ -21,7 +21,7 @@ achieve DP is by adding some statistical noise to the result of a data analysis.
 If the noise is carefully calibrated, it provides *privacy* protection for the
 individuals contributing their data.
 
-## Bounded vs. Unbounded notions of Differential Privacy
+## Notions of Differential Privacy
 
 There are two kind of definitions about how to formulate differential privacy
 guarantees: unbound and bounded -- see the paper [No Free Lunch in Data
@@ -42,8 +42,8 @@ amount of people at our company that has some decease:
 ```haskell
 sickEmployees dataset = do
     dataset' <- filter (\employee -> sick employee == True) dataset
-    noise_n <- lenght_with_DP dataset'
-    return noise_n
+    noisy_n <- lenght_with_DP dataset'
+    return noisy_n
 ```
 
 The program above takes a `dataset`, and generates another dataset `dataset'`
@@ -56,6 +56,65 @@ consider the extreme case where `dataset` consists of employees with a given
 name Alejandro and lastname Russo. In this case, knowing the exact number might
 give you a hint if someone is Alejandro Russo is sick.
 
-## Bounded DP
+### Bounded DP
 
- XX
+This notion consider that the length, i.e., the number of rows, of a dataset is
+public. This notion is safe to use in scenarios where we know, beforehand, that
+datasets are big. For instance, in the query above, `dataset'` might consists of
+million of records, but that might not be the case if dataset are further
+proceeded.
+
+For instance, to compute the average of salaries under a bounded notion would be
+something like:
+
+```haskell
+avgSalary dataset = do
+    noisy_sum <- sum_with_DP dataset
+    return (noisy_sum / length dataset)
+```
+
+So, if we know that `dataset` has million of employees, we are probably fine!
+
+## Bounded vs. Unbounded
+
+If we continue with the example above, and we want to compute the average salary
+of sick people, we should do something like
+
+```haskell
+avgSalary dataset = do
+    dataset' <- filter (\employee -> sick employee == True) dataset
+    noisy_sum <- sum_with_DP dataset'
+    return (noisy_sum / length dataset')
+```
+
+but, is this correct? Can we assume that the length of the filtered dataset,
+i.e., `dataset'`, as public too? What about if the filtering process makes the
+length of the resulting dataset "small"? In such cases, it is recommended to
+instead assume an unbounded notion, where we need to first get the length of the
+resulting dataset with DP and then do the division.
+
+
+```haskell
+avgSalary dataset = do
+    dataset'  <- filter (\employee -> sick employee == True) dataset
+    noisy_n   <- length_with_DP dataset'
+    noisy_sum <- sum_with_DP dataset'
+    return (noisy_sum / noisy_n)
+```
+
+## Accuracy analysis
+
+The injection of noise by DP degrades the precision/accuracy of the information
+return by queries. Many formulas to predict worst-case errors of DP algorithm
+sometimes leverage the fact that the length of the dataset is public
+information. *It is challenging to analytically predict the worst-case error for
+expression like `noisy_sum / noisy_n`, where the length of the dataset is not
+considered public.*
+
+# Goal of this thesis
+
+The goal of this thesis is to present analytical formulas for queries, like
+average, performed under an unbound notion of DP. Such formulas will be
+conceived from a novel combination of DP-formulas and error analysis. If you are
+unfamiliar with error analysis, please refer to [An Introduction to error
+analysis](https://www.niser.ac.in/sps/sites/default/files/basic_page/John%20R.%20Taylor%20-%20An%20Introduction%20to%20Error%20Analysis_%20The%20Study%20of%20Uncertainties%20in%20Physical%20Measurements-University%20Science%20Books%20(1997).pdf).
