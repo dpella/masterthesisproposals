@@ -53,7 +53,7 @@ the privacy of the individual is protected. The noise here is needed for cases
 where the amount of rows is "small" and what is considered small might vary
 according to the situation. Nevertheless, to illustrate this point, we can
 consider the extreme case where `dataset` consists of employees with a given
-name Alejandro and lastname Russo. In this case, knowing the exact number might
+name Alejandro and last name Russo. In this case, knowing the exact number might
 give you a hint if someone is Alejandro Russo is sick.
 
 ### Bounded DP
