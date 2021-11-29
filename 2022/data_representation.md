@@ -7,6 +7,12 @@ Gothenburg.
 - Chalmers supervisor: Prof. Alejandro Russo
 - Possible examiner: Prof. David Sands
 
+Skills required to complete the thesis:
+- Knowledge about Haskell programming language
+- Type-level programming concepts like type-families, type classes, data kinds, and type
+  constraints.
+- Experience with designing domain specific languages
+
 ## Differential Privacy
 
 [Differential privacy](https://link.springer.com/chapter/10.1007/11681878_14)
