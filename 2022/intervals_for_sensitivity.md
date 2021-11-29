@@ -8,9 +8,8 @@ Gothenburg.
 - Possible examiner: Prof. David Sands
 
 Skills required to complete the thesis:
-- X
-- Y
-- Z
+- Design and implementation of DSLs in Haskell (a great advantage if you took
+  TDA342/DIT260)
 
 ## Differential Privacy
 
