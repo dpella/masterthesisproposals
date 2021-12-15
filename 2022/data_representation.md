@@ -1,4 +1,4 @@
-# Typed representation of datasets for Differential Privacy systems
+# Typed representation of tables for Differential Privacy systems
 
 ## Differential Privacy
 
@@ -89,12 +89,4 @@ work.
 While enumerating the possible value of booleans, and integers is somehow
 feasible, representing decimal numbers is challenging.
 
-
-
-
 ## General representation of tables as n-ary product
-
-
-
-
-## Capturing columns ranges
